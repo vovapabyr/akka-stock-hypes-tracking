@@ -1,8 +1,8 @@
 ﻿using Akka.Actor;
 using Akka.Event;
-using StockHypesTracking.Web.Messsages;
+using StockHypesTracking.Messsages;
 
-namespace StockHypesTracking.Web.Actors
+namespace StockHypesTracking.Actors
 {
     public class SocketConnectionsManagerActor : ReceiveActor
     {
@@ -28,6 +28,20 @@ namespace StockHypesTracking.Web.Actors
                 var newConnectionRActor = Context.ActorOf(SocketConnectionActor.Props(_pollingManagerRActor), socketConnectionActorName);
                 newConnectionRActor.Tell(newConnection, Self);
                 _connections.Add(newConnection.Id, newConnectionRActor);
+            });
+
+
+            Receive<CloseConnectionMessage>((closedConnection) =>
+            {
+                if (_connections.TryGetValue(closedConnection.Id, out var connectionRActor))
+                {
+
+                    _logger.Info($"Terminating connection {closedConnection.Id}.");
+                    _connections.Remove(closedConnection.Id);
+                    Context.Stop(connectionRActor);
+                }
+                else
+                    _logger.Warning($"No connection {closedConnection.Id} found to terminate.");
             });
         }
 

@@ -1,6 +1,6 @@
 ﻿using Akka.Routing;
 
-namespace StockHypesTracking.Web.Messsages
+namespace StockHypesTracking.Messsages
 {
     public class RegisterNewConnectionMessage : IConsistentHashable
     {
@@ -12,11 +12,11 @@ namespace StockHypesTracking.Web.Messsages
 
         public object ConsistentHashKey => Id;
 
-        public RegisterNewConnectionMessage(string symbol, int interval, string connectionId)
+        public RegisterNewConnectionMessage(string symbol, int interval, string id)
         {
             Symbol = symbol;
             Interval = interval;
-            Id = connectionId;
+            Id = id;
         }
 
         public override string ToString() => $"Id: {Id}, Symbol: {Symbol}, Interval: {Interval}";

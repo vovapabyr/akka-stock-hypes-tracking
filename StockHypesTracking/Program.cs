@@ -1,8 +1,8 @@
 using Akka.Actor;
 using Akka.Hosting;
 using Akka.Routing;
-using StockHypesTracking.Web.Actors;
-using StockHypesTracking.Web.Hubs;
+using StockHypesTracking.Actors;
+using StockHypesTracking.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();

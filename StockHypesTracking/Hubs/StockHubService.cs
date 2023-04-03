@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace StockHypesTracking.Web.Hubs
+namespace StockHypesTracking.Hubs
 {
     public class StockHubService
     {

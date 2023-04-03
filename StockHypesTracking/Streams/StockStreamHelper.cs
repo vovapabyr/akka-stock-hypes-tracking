@@ -2,7 +2,7 @@
 using Akka.Streams;
 using Akka;
 
-namespace StockHypesTracking.Web.Streams
+namespace StockHypesTracking.Streams
 {
     //public static class StockStreamHelper
     //{

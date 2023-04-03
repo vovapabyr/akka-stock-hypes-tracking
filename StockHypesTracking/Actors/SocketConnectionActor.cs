@@ -1,8 +1,8 @@
 ﻿using Akka.Actor;
 using Akka.Event;
-using StockHypesTracking.Web.Messsages;
+using StockHypesTracking.Messsages;
 
-namespace StockHypesTracking.Web.Actors
+namespace StockHypesTracking.Actors
 {
     public class SocketConnectionActor : ReceiveActor
     {

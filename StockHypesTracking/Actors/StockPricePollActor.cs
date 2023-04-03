@@ -1,10 +1,9 @@
 ﻿using Akka.Actor;
-using Akka.Dispatch.SysMsg;
 using Akka.Event;
-using StockHypesTracking.Web.Messsages;
+using StockHypesTracking.Messsages;
 using YahooFinanceApi;
 
-namespace StockHypesTracking.Web.Actors
+namespace StockHypesTracking.Actors
 {
     public class StockPricePollActor : ReceiveActor, IWithTimers
     {
@@ -12,7 +11,6 @@ namespace StockHypesTracking.Web.Actors
         private readonly IActorRef _socketConnectionRActor;
         private readonly string _symbol;
         private readonly int _interval;
-        private readonly string _connectionId;
 
         public StockPricePollActor(IActorRef socketConnectionRActor, string symbol, int interval)
         {
@@ -20,13 +18,19 @@ namespace StockHypesTracking.Web.Actors
             _socketConnectionRActor = socketConnectionRActor;
             _interval = interval;
             _symbol = symbol;
-
+            Context.Watch(socketConnectionRActor);
             ReceiveAsync<PollStockPriceMessage>(async (msg) =>
             {
                 var stock = await Yahoo.Symbols(_symbol).Fields(Field.Symbol, Field.Currency, Field.RegularMarketPrice).QueryAsync();
                 var newStockPriceMessage = new NewStockPriceMessage(stock[_symbol]);
                 _logger.Debug($"{newStockPriceMessage}");
                 _socketConnectionRActor.Tell(newStockPriceMessage, Self);
+            });
+
+            Receive<Terminated>((terminated) =>
+            {
+                _logger.Debug($"Terminating.");
+                Context.Stop(Self);
             });
         }
             

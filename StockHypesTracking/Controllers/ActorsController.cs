@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using Microsoft.AspNetCore.Mvc;
 
-namespace StockHypesTracking.Web.Controllers
+namespace StockHypesTracking.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -1,10 +1,10 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
 using Microsoft.AspNetCore.SignalR;
-using StockHypesTracking.Web.Actors;
-using StockHypesTracking.Web.Messsages;
+using StockHypesTracking.Actors;
+using StockHypesTracking.Messsages;
 
-namespace StockHypesTracking.Web.Hubs
+namespace StockHypesTracking.Hubs
 {
     public class StockHub : Hub
     {
@@ -23,6 +23,13 @@ namespace StockHypesTracking.Web.Hubs
             var newConnectionMessage = new RegisterNewConnectionMessage(startStreamModel.Symbol, startStreamModel.Interval, Context.ConnectionId);
             _logger.LogInformation($"Starting new stream: {newConnectionMessage}");
             socketManagerARef.Tell(newConnectionMessage);
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            _logger.LogInformation($"Connection {Context.ConnectionId} closed.");
+            var socketManagerARef = await _socketManagerARefProvider.GetAsync();
+            socketManagerARef.Tell(new CloseConnectionMessage(Context.ConnectionId));
         }
 
         public class StartStreamModel 

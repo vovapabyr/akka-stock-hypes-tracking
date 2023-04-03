@@ -1,6 +1,6 @@
 ﻿using YahooFinanceApi;
 
-namespace StockHypesTracking.Web.Messsages
+namespace StockHypesTracking.Messsages
 {
     public class NewStockPriceMessage
     {
