@@ -17,12 +17,20 @@ namespace StockHypesTracking.Hubs
             _logger = logger;
         }
 
-        public async Task StartStream(StartStreamModel startStreamModel) 
+        public async Task StartStream(StreamModel startStreamModel) 
         {
             var socketManagerARef = await _socketManagerARefProvider.GetAsync();
             var newConnectionMessage = new RegisterNewConnectionMessage(startStreamModel.Symbol, startStreamModel.Interval, Context.ConnectionId);
             _logger.LogInformation($"Starting new stream: {newConnectionMessage}");
             socketManagerARef.Tell(newConnectionMessage);
+        }
+
+        public async Task UpdateStream(StreamModel updateStreamModel)
+        {
+            var socketManagerARef = await _socketManagerARefProvider.GetAsync();
+            var updateStreamMessage = new UpdateStreamMessage(updateStreamModel.Symbol, updateStreamModel.Interval, Context.ConnectionId);
+            _logger.LogInformation($"Updating stream: {updateStreamMessage}");
+            socketManagerARef.Tell(updateStreamMessage);
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
@@ -32,12 +40,11 @@ namespace StockHypesTracking.Hubs
             socketManagerARef.Tell(new CloseConnectionMessage(Context.ConnectionId));
         }
 
-        public class StartStreamModel 
+        public class StreamModel 
         {
             public string Symbol { get; set; }
 
             public int Interval { get; set; }
         }
-
     }
 }

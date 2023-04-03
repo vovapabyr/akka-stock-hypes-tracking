@@ -7,26 +7,30 @@ namespace StockHypesTracking.Actors
     public class SocketConnectionActor : ReceiveActor
     {
         private readonly ILoggingAdapter _logger;
-        private readonly IActorRef _streamsManagerRActor;
+        private IActorRef _pollingRActor;
 
-        public SocketConnectionActor(IActorRef streamsManagerRActor) 
+        public SocketConnectionActor() 
         {
             _logger = Logging.GetLogger(Context);
 
-            _streamsManagerRActor = streamsManagerRActor;
-
-            Receive<RegisterNewConnectionMessage>((newConnection) =>
-            {
-                _logger.Debug(newConnection.ToString());
-                _streamsManagerRActor.Tell(newConnection);
-            });
-
             Receive<NewStockPriceMessage>((stockPrice) =>
             {
-                _logger.Debug(stockPrice.ToString());
+                _logger.Debug($"{stockPrice}");
+            });
+
+            Receive<PollingStartedMessage>((msg) =>
+            {
+                _logger.Debug($"Polling actor received.");
+                _pollingRActor = Sender;
+            });
+
+            Receive<UpdateStreamMessage>((updateStream) =>
+            {
+                _logger.Debug($"Updating {updateStream}");
+                _pollingRActor?.Tell(updateStream, Self);
             });
         }
 
-        public static Props Props(IActorRef actorRef) => Akka.Actor.Props.Create(() => new SocketConnectionActor(actorRef));
+        public static Props Props() => Akka.Actor.Props.Create(() => new SocketConnectionActor());
     }
 }

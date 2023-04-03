@@ -16,7 +16,8 @@ namespace StockHypesTracking.Actors
             {
                 var pollActorName =$"poll-{newConnection.Symbol}-{newConnection.Id}";
                 _logger.Info($"Adding new poller for: {newConnection}. Actor: {pollActorName}");
-                Context.ActorOf(StockPricePollActor.Props(Sender, newConnection.Symbol, newConnection.Interval), pollActorName);
+                var pollingRActor = Context.ActorOf(StockPricePollingActor.Props(Sender, newConnection.Symbol, newConnection.Interval), pollActorName);
+                Sender.Tell(new PollingStartedMessage(), pollingRActor);
             });
         }
     }
