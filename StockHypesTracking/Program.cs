@@ -1,8 +1,6 @@
 using Akka.Actor;
-using Akka.DependencyInjection;
 using Akka.Hosting;
 using Akka.Routing;
-using Microsoft.Extensions.Logging.Configuration;
 using StockHypesTracking.Web.Actors;
 using StockHypesTracking.Web.Hubs;
 
@@ -15,7 +13,7 @@ builder.Services.AddAkka("stock-hypes", (builder, provider) =>
     builder
         .ConfigureLoggers((conf) =>
         {
-            conf.LogLevel = Akka.Event.LogLevel.InfoLevel;
+            conf.LogLevel = Akka.Event.LogLevel.DebugLevel;
         })
         .WithActors((system, registry) =>
         {
