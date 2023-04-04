@@ -7,15 +7,12 @@ namespace StockHypesTracking.Actors
 {
     public class StockPricePolling : ReceiveActor, IWithTimers
     {
-        private readonly ILoggingAdapter _logger;
-        private readonly IActorRef _socketConnectionRActor;
+        private readonly ILoggingAdapter _logger = Context.GetLogger();
         private string _symbol;
         private int _interval;
 
-        public StockPricePolling(IActorRef socketConnectionRActor, string symbol, int interval)
+        public StockPricePolling(string symbol, int interval)
         {
-            _logger = Logging.GetLogger(Context);
-            _socketConnectionRActor = socketConnectionRActor;
             _interval = interval;
             _symbol = symbol;
 
@@ -23,16 +20,8 @@ namespace StockHypesTracking.Actors
             {
                 var stock = await Yahoo.Symbols(_symbol).Fields(Field.Symbol, Field.Currency, Field.RegularMarketPrice).QueryAsync();
                 var newStockPriceMessage = new NewStockPriceMessage(stock[_symbol]);
-                _logger.Debug($"{newStockPriceMessage}");
-                _socketConnectionRActor.Tell(newStockPriceMessage, Self);
-            });
-
-            Receive<UpdateStreamMessage>((updateStream) =>
-            {
-                _logger.Debug($"Updating {updateStream}");
-                _interval = updateStream.Interval;
-                _symbol = updateStream.Symbol;
-                StartPeriodicTimer();
+                _logger.Debug($"New stock '{newStockPriceMessage}'");
+                Context.Parent.Tell(newStockPriceMessage);
             });
         }
             
@@ -40,11 +29,9 @@ namespace StockHypesTracking.Actors
 
         protected override void PreStart()
         {
-            StartPeriodicTimer();
+            Timers.StartPeriodicTimer("poll", new PollStockPriceMessage(), TimeSpan.FromMilliseconds(0), TimeSpan.FromSeconds(_interval));
         }
 
-        private void StartPeriodicTimer() => Timers.StartPeriodicTimer("poll", new PollStockPriceMessage(), TimeSpan.FromMilliseconds(0), TimeSpan.FromSeconds(_interval));
-
-        public static Props Props(IActorRef socketConnectionRActor, string symbol, int interval) => Akka.Actor.Props.Create(() => new StockPricePolling(socketConnectionRActor, symbol, interval));
+        public static Props Props(string symbol, int interval) => Akka.Actor.Props.Create(() => new StockPricePolling(symbol, interval));
     }
 }

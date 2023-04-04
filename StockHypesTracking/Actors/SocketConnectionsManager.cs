@@ -6,26 +6,24 @@ namespace StockHypesTracking.Actors
 {
     public class SocketConnectionsManager : ReceiveActor
     {
-        private readonly ILoggingAdapter _logger;
+        private readonly ILoggingAdapter _logger = Context.GetLogger();
         private readonly IActorRef _pollingManagerRActor;
         private Dictionary<string, IActorRef> _connections = new Dictionary<string, IActorRef>();
 
         public SocketConnectionsManager(IActorRef streamsManagerRActor)
         {
-            _logger = Logging.GetLogger(Context);
             _pollingManagerRActor = streamsManagerRActor;
 
             Receive<RegisterNewConnectionMessage>((newConnection) =>
             {
                 if (_connections.ContainsKey(newConnection.Id))
                 {
-                    _logger.Warning($"Trying to start polling for exsiting connectio {newConnection.Id}.");
+                    _logger.Warning($"Try to start polling for exsiting connection '{newConnection.Id}'");
                     return;
                 }
 
-                var socketConnectionActorName = $"connection-{newConnection.Symbol}-{newConnection.Id}";
-                _logger.Info($"Adding new connection: {newConnection}. Actor: {socketConnectionActorName}");
-                var newConnectionRActor = Context.ActorOf(SocketConnection.Props(), socketConnectionActorName);
+                var newConnectionRActor = Context.ActorOf(Akka.Actor.Props.Create<SocketConnection>(), $"connection-{newConnection.Id}");
+                _logger.Info($"Add new connection '{newConnectionRActor.Path.ToStringWithAddress()}'");
                 _pollingManagerRActor.Tell(newConnection, newConnectionRActor);
                 _connections.Add(newConnection.Id, newConnectionRActor);
             });
@@ -34,8 +32,7 @@ namespace StockHypesTracking.Actors
             {
                 if (TryGetConnection(closedConnection.Id, out var connectionRActor))
                 {
-
-                    _logger.Info($"Terminating connection {closedConnection.Id}.");
+                    _logger.Info($"Terminating connection '{connectionRActor.Path.ToStringWithAddress()}'");
                     _connections.Remove(closedConnection.Id);
                     Context.Stop(connectionRActor);
                 }
@@ -45,7 +42,7 @@ namespace StockHypesTracking.Actors
             {
                 if (TryGetConnection(updateConnection.Id, out var connectionRActor))
                 {
-                    _logger.Info($"Updating stream {updateConnection}.");
+                    _logger.Info($"Update stream '{connectionRActor.Path.ToStringWithAddress()}'");
                     connectionRActor.Tell(updateConnection, Self);
                 }
             });
@@ -57,7 +54,7 @@ namespace StockHypesTracking.Actors
                 return true;
             else
             {
-                _logger.Warning($"No connection {connectionId} found.");
+                _logger.Warning($"No connection '{connectionId}' found");
                 return false;
             }
         }
