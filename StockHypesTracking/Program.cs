@@ -12,10 +12,10 @@ builder.Services.AddAkka("stock-hypes", (builder, provider) =>
     builder
         .ConfigureLoggers((conf) =>
         {
-            conf.LogLevel = Akka.Event.LogLevel.DebugLevel;
+            conf.LogLevel = Akka.Event.LogLevel.InfoLevel;
         })
         .WithActors((system, registry) =>
-        {
+        { 
             var rootSupervisorProps = Props.Create<StockHypesSupervisor>(registry);
             var rootSupervisor = system.ActorOf(rootSupervisorProps, "stock-hypes-supervisor");
             registry.Register<StockHypesSupervisor>(rootSupervisor);

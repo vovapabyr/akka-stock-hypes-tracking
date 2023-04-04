@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using Akka.DependencyInjection;
 using Akka.Event;
 using StockHypesTracking.Messsages;
 
@@ -22,7 +23,7 @@ namespace StockHypesTracking.Actors
                     return;
                 }
 
-                var newConnectionRActor = Context.ActorOf(Akka.Actor.Props.Create<SocketConnection>(), $"connection-{newConnection.Id}");
+                var newConnectionRActor = Context.ActorOf(DependencyResolver.For(Context.System).Props<SocketConnection>(newConnection.Id), $"connection-{newConnection.Id}");
                 _logger.Info($"Add new connection '{newConnectionRActor.Path.ToStringWithAddress()}'");
                 _pollingManagerRActor.Tell(newConnection, newConnectionRActor);
                 _connections.Add(newConnection.Id, newConnectionRActor);

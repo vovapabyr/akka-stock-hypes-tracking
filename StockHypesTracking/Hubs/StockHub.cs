@@ -21,7 +21,7 @@ namespace StockHypesTracking.Hubs
         {
             var socketManagerARef = await _socketManagerARefProvider.GetAsync();
             var newConnectionMessage = new RegisterNewConnectionMessage(startStreamModel.Symbol, startStreamModel.Interval, Context.ConnectionId);
-            _logger.LogInformation($"Starting new stream: {newConnectionMessage}");
+            _logger.LogInformation($"Starting new stream {newConnectionMessage}");
             socketManagerARef.Tell(newConnectionMessage);
         }
 
@@ -29,13 +29,13 @@ namespace StockHypesTracking.Hubs
         {
             var socketManagerARef = await _socketManagerARefProvider.GetAsync();
             var updateStreamMessage = new UpdateStreamMessage(updateStreamModel.Symbol, updateStreamModel.Interval, Context.ConnectionId);
-            _logger.LogInformation($"Updating stream: {updateStreamMessage}");
+            _logger.LogInformation($"Updating stream {updateStreamMessage}");
             socketManagerARef.Tell(updateStreamMessage);
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            _logger.LogInformation($"Connection {Context.ConnectionId} closed.");
+            _logger.LogInformation($"Connection {Context.ConnectionId} closed");
             var socketManagerARef = await _socketManagerARefProvider.GetAsync();
             socketManagerARef.Tell(new CloseConnectionMessage(Context.ConnectionId));
         }
