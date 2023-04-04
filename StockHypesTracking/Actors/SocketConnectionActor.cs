@@ -31,6 +31,11 @@ namespace StockHypesTracking.Actors
             });
         }
 
+        protected override void PostStop()
+        {
+            Context.Stop(_pollingRActor);
+        }
+
         public static Props Props() => Akka.Actor.Props.Create(() => new SocketConnectionActor());
     }
 }

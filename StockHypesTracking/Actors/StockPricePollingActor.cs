@@ -19,8 +19,6 @@ namespace StockHypesTracking.Actors
             _interval = interval;
             _symbol = symbol;
 
-            Context.Watch(socketConnectionRActor);
-
             ReceiveAsync<PollStockPriceMessage>(async (msg) =>
             {
                 var stock = await Yahoo.Symbols(_symbol).Fields(Field.Symbol, Field.Currency, Field.RegularMarketPrice).QueryAsync();
@@ -35,12 +33,6 @@ namespace StockHypesTracking.Actors
                 _interval = updateStream.Interval;
                 _symbol = updateStream.Symbol;
                 StartPeriodicTimer();
-            });
-
-            Receive<Terminated>((terminated) =>
-            {
-                _logger.Debug($"Terminating.");
-                Context.Stop(Self);
             });
         }
             
