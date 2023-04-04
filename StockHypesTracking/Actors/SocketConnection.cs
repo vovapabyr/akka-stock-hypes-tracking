@@ -4,12 +4,12 @@ using StockHypesTracking.Messsages;
 
 namespace StockHypesTracking.Actors
 {
-    public class SocketConnectionActor : ReceiveActor
+    public class SocketConnection : ReceiveActor
     {
         private readonly ILoggingAdapter _logger;
         private IActorRef _pollingRActor;
 
-        public SocketConnectionActor() 
+        public SocketConnection() 
         {
             _logger = Logging.GetLogger(Context);
 
@@ -36,6 +36,6 @@ namespace StockHypesTracking.Actors
             Context.Stop(_pollingRActor);
         }
 
-        public static Props Props() => Akka.Actor.Props.Create(() => new SocketConnectionActor());
+        public static Props Props() => Akka.Actor.Props.Create(() => new SocketConnection());
     }
 }

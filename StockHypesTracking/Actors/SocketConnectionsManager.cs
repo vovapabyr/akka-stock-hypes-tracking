@@ -4,13 +4,13 @@ using StockHypesTracking.Messsages;
 
 namespace StockHypesTracking.Actors
 {
-    public class SocketConnectionsManagerActor : ReceiveActor
+    public class SocketConnectionsManager : ReceiveActor
     {
         private readonly ILoggingAdapter _logger;
         private readonly IActorRef _pollingManagerRActor;
         private Dictionary<string, IActorRef> _connections = new Dictionary<string, IActorRef>();
 
-        public SocketConnectionsManagerActor(IActorRef streamsManagerRActor)
+        public SocketConnectionsManager(IActorRef streamsManagerRActor)
         {
             _logger = Logging.GetLogger(Context);
             _pollingManagerRActor = streamsManagerRActor;
@@ -25,7 +25,7 @@ namespace StockHypesTracking.Actors
 
                 var socketConnectionActorName = $"connection-{newConnection.Symbol}-{newConnection.Id}";
                 _logger.Info($"Adding new connection: {newConnection}. Actor: {socketConnectionActorName}");
-                var newConnectionRActor = Context.ActorOf(SocketConnectionActor.Props(), socketConnectionActorName);
+                var newConnectionRActor = Context.ActorOf(SocketConnection.Props(), socketConnectionActorName);
                 _pollingManagerRActor.Tell(newConnection, newConnectionRActor);
                 _connections.Add(newConnection.Id, newConnectionRActor);
             });
@@ -62,6 +62,6 @@ namespace StockHypesTracking.Actors
             }
         }
 
-        public static Props Props(IActorRef actorRef) => Akka.Actor.Props.Create(() => new SocketConnectionsManagerActor(actorRef));
+        public static Props Props(IActorRef actorRef) => Akka.Actor.Props.Create(() => new SocketConnectionsManager(actorRef));
     }
 }

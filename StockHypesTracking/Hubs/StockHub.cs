@@ -8,10 +8,10 @@ namespace StockHypesTracking.Hubs
 {
     public class StockHub : Hub
     {
-        private readonly IRequiredActor<SocketConnectionsManagerActor> _socketManagerARefProvider;
+        private readonly IRequiredActor<SocketConnectionsManager> _socketManagerARefProvider;
         private readonly ILogger<StockHub> _logger;
 
-        public StockHub(IRequiredActor<SocketConnectionsManagerActor> socketManagerARefProvider, ILogger<StockHub> logger)
+        public StockHub(IRequiredActor<SocketConnectionsManager> socketManagerARefProvider, ILogger<StockHub> logger)
         {
             _socketManagerARefProvider = socketManagerARefProvider;
             _logger = logger;

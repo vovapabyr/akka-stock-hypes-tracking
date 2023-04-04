@@ -5,14 +5,14 @@ using YahooFinanceApi;
 
 namespace StockHypesTracking.Actors
 {
-    public class StockPricePollingActor : ReceiveActor, IWithTimers
+    public class StockPricePolling : ReceiveActor, IWithTimers
     {
         private readonly ILoggingAdapter _logger;
         private readonly IActorRef _socketConnectionRActor;
         private string _symbol;
         private int _interval;
 
-        public StockPricePollingActor(IActorRef socketConnectionRActor, string symbol, int interval)
+        public StockPricePolling(IActorRef socketConnectionRActor, string symbol, int interval)
         {
             _logger = Logging.GetLogger(Context);
             _socketConnectionRActor = socketConnectionRActor;
@@ -45,6 +45,6 @@ namespace StockHypesTracking.Actors
 
         private void StartPeriodicTimer() => Timers.StartPeriodicTimer("poll", new PollStockPriceMessage(), TimeSpan.FromMilliseconds(0), TimeSpan.FromSeconds(_interval));
 
-        public static Props Props(IActorRef socketConnectionRActor, string symbol, int interval) => Akka.Actor.Props.Create(() => new StockPricePollingActor(socketConnectionRActor, symbol, interval));
+        public static Props Props(IActorRef socketConnectionRActor, string symbol, int interval) => Akka.Actor.Props.Create(() => new StockPricePolling(socketConnectionRActor, symbol, interval));
     }
 }
