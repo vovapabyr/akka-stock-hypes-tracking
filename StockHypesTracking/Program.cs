@@ -1,6 +1,5 @@
 using Akka.Actor;
 using Akka.Hosting;
-using Akka.Routing;
 using StockHypesTracking.Actors;
 using StockHypesTracking.Hubs;
 
@@ -17,12 +16,9 @@ builder.Services.AddAkka("stock-hypes", (builder, provider) =>
         })
         .WithActors((system, registry) =>
         {
-            var pollingRouterProps = new ConsistentHashingPool(5).Props(Props.Create<StockPricePollingManager>());
-            var pollingRouterRActor = system.ActorOf(pollingRouterProps, "polling-router");
-
-            var connectionsRouterProps = new ConsistentHashingPool(5).Props(SocketConnectionsManagerActor.Props(pollingRouterRActor));
-            var socketConnectionsRouterRActor = system.ActorOf(connectionsRouterProps, "connections-router");
-            registry.Register<SocketConnectionsManagerActor>(socketConnectionsRouterRActor);
+            var rootSupervisorProps = Props.Create<StockHypesSupervisor>(registry);
+            var rootSupervisor = system.ActorOf(rootSupervisorProps, "stock-hypes-supervisor");
+            registry.Register<StockHypesSupervisor>(rootSupervisor);
         });
 });
 
