@@ -1,17 +1,18 @@
 ﻿using Akka.Actor;
 using Microsoft.AspNetCore.Mvc;
+using StockHypesTracking.Actors;
 
 namespace StockHypesTracking.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
     public class ActorsController : ControllerBase
     {
-        public IActionResult Get([FromServices] ActorSystem system) 
+        public async Task<IActionResult> Get([FromServices] ActorSystem system, string path = "/user") 
         {
-            var actors = system.ActorSelection("/user/*");
-            
-            return Ok();
+            var treeRActor = system.ActorOf(Props.Create<ApplicationTreeTraverse>());
+            var actors = await treeRActor.Ask<List<string>>(path);
+            system.Stop(treeRActor);
+            return Ok(string.Join('\n', actors));
         }
     }
 }
