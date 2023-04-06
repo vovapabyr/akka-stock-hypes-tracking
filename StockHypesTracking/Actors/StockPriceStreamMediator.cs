@@ -20,8 +20,9 @@ namespace StockHypesTracking.Actors
             _symbol = symbol;
             _interval = interval;
 
-            _sourceQueue = Source.Queue<NewStockPriceMessage>(0, overflowStrategy: OverflowStrategy.Backpressure).Via(StockStreamHelper.BuildDataFlow())
-                .To(Sink.ActorRefWithAck<NewStockPriceMessage>(connectionRActor, new InitStreamMessage(Self), new StreamAckMessage(), new StreamCompletedMessage())).Run(Context.System.Materializer());
+            _sourceQueue = Source.Queue<NewStockPriceMessage>(0, overflowStrategy: OverflowStrategy.Backpressure).Via(StockStreamProcessingBuilder.BuildStockProcessingFlow())
+                .To(Sink.ActorRefWithAck<NewStockPriceMessage>(connectionRActor, new InitStreamMessage(Self), new StreamAckMessage(), new StreamCompletedMessage()))
+                .Run(Context.System.Materializer(ActorMaterializerSettings.Create(Context.System).WithSupervisionStrategy(ex => Akka.Streams.Supervision.Directive.Resume)));
 
             InitPolling();
 

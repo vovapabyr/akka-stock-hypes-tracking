@@ -18,7 +18,7 @@ namespace StockHypesTracking.Actors
 
             ReceiveAsync<PollStockPriceMessage>(async (msg) =>
             {
-                var stock = await Yahoo.Symbols(_symbol).Fields(Field.Symbol, Field.Currency, Field.RegularMarketPrice).QueryAsync();
+                var stock = await Yahoo.Symbols(_symbol).Fields(Field.Symbol, Field.Currency, Field.RegularMarketPrice, Field.RegularMarketTime).QueryAsync();
                 var newStockPriceMessage = new NewStockPriceMessage(stock[_symbol]);
                 _logger.Debug($"New stock '{newStockPriceMessage}'");
                 Context.Parent.Tell(newStockPriceMessage);

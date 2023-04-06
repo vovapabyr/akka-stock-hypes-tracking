@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Akka.Hosting" Version="1.5.1" />
     <PackageReference Include="Akka.Streams" Version="1.5.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="YahooFinanceApi" Version="2.1.2" />
   </ItemGroup>
 
